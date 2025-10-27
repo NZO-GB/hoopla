@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+from inverted_index import INVERTED_INDEX
 import argparse
 
 from lib.keyword_search import(
@@ -13,9 +13,17 @@ def main() -> None:
     search_parser = subparsers.add_parser("search", help="Search movies using BM25")
     search_parser.add_argument("query", type=str, help="Search query")
 
-    args = parser.parse_args()
+    search_parser = subparsers.add_parser("build", help="build the inverted index")
 
+    search_parser = subparsers.add_parser("save", help="save the inverted index to file")
+
+    args = parser.parse_args()
+    
     match args.command:
+        case "build":
+            INVERTED_INDEX.build()
+        case "save":
+            INVERTED_INDEX.save()
         case "search":
             print(f"Searching for: {args.query}")
             results = search_command(args.query)

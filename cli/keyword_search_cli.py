@@ -2,7 +2,9 @@
 from inverted_index import INVERTED_INDEX
 import argparse
 
+from lib.get_idf import get_idf_command
 from lib.get_tf import get_tf_command
+from lib.get_tfidf import get_tfidf_command
 from lib.keyword_search import(
     search_command
 )
@@ -14,17 +16,28 @@ def main() -> None:
     search_parser = subparsers.add_parser("search", help="Search movies using BM25")
     search_parser.add_argument("query", type=str, help="Search query")
 
-    search_parser = subparsers.add_parser("build", help="build the inverted index")
+    subparsers.add_parser("build", help="build the inverted index")
 
-    search_parser = subparsers.add_parser("tf", help="returns frequency of term in doc given by doc_id")
-    search_parser.add_argument("doc_id", type=str, help="doc_id of the movie to search")
-    search_parser.add_argument("term", type=str, help="the therm to get the frequency of")
+    tf_parser = subparsers.add_parser("tf", help="returns frequency of term in movie given by doc_id")
+    tf_parser.add_argument("doc_id", type=str, help="doc_id of the movie to search")
+    tf_parser.add_argument("term", type=str, help="the therm to get the frequency of")
 
+    idf_parser = subparsers.add_parser("idf", help="returns the inversed document frequency of a term")
+    idf_parser.add_argument("term", type=str, help="the term to get the frequency of")
 
+    tfidf_parser = subparsers.add_parser("tfidf", help="returns the tf-idf of a movie given by doc_id")
+    tfidf_parser.add_argument("doc_id", type=str, help="doc_id of the movie to search")
+    tfidf_parser.add_argument("term", type=str, help="the therm to get the tf-idf of")
 
     args = parser.parse_args()
     
     match args.command:
+        case "tfidf":
+            tfidf = get_tfidf_command(int(args.doc_id), args.term)
+            print(f"TF-IDF score of '{args.term}' in document '{args.doc_id}': {tfidf:.2f}")
+        case "idf":
+            idf = get_idf_command(args.term)
+            print(f"Inverse document frequency of '{args.term}': {idf:.2f}")
         case "build":
             INVERTED_INDEX.build()
         case "tf":

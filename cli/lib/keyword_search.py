@@ -5,6 +5,7 @@ def search_command(query: str, limit: int = DEFAULT_SEARCH_LIMIT) -> list[dict]:
     INVERTED_INDEX.load()
     results = set()
     query = str_process(query)
+    
     for token in query:
         result = INVERTED_INDEX.get_documents(token)
         if result:

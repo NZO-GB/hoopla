@@ -9,10 +9,11 @@ class InvertedIndex:
     def __init__(self):
         self.index: dict[str, list[int]] = {}
         self.docmap: dict[int, dict] = {}
-        self.term_frequencies: Counter = Counter()
+        self.term_frequencies: dict[str, Counter] = {}
 
-    def __add_document(self, doc_id, text):
+    def __add_document(self, doc_id: int, text: str):
         text = str_process(text)
+        self.term_frequencies[doc_id] = Counter(text)
         for word in text:
             if word not in self.index:
                 self.index[word] = []
@@ -40,7 +41,7 @@ class InvertedIndex:
 
         with open("cache/docmap.pkl", "wb") as f:
             pickle.dump(self.docmap, f)
-            
+
         with open("cache/term_frequencies.pkl", "wb") as f:
             pickle.dump(self.term_frequencies, f)
 
@@ -56,5 +57,10 @@ class InvertedIndex:
         except:
             print("Unable to find docmap file")
         
+        try: 
+            with open("cache/term_frequencies.pkl", "rb") as f:
+                self.term_frequencies = pickle.load(f)
+        except:
+            print("Unable to find term frequencies")
 
 INVERTED_INDEX = InvertedIndex()

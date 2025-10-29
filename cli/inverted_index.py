@@ -2,6 +2,7 @@ from lib.search_utils import str_process, load_movies
 from collections import Counter
 import pickle
 import os
+import math
 
 MOVIES = load_movies()
 
@@ -17,7 +18,8 @@ class InvertedIndex:
         for word in text:
             if word not in self.index:
                 self.index[word] = []
-            self.index[word].append(doc_id)
+            if doc_id not in self.index[word]:
+                self.index[word].append(doc_id)
     
     def get_documents(self, term):
         try:
@@ -25,7 +27,7 @@ class InvertedIndex:
         except TypeError:
             return 
         return result
-    
+        
     def build(self):
         for m in MOVIES:
             title_description = f"{m["title"]} {m["description"]}"

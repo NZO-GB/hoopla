@@ -5,6 +5,7 @@ import argparse
 from lib.get_idf import get_idf_command
 from lib.get_tf import get_tf_command
 from lib.get_tfidf import get_tfidf_command
+from lib.get_bm25 import get_bm25_idf
 from lib.keyword_search import(
     search_command
 )
@@ -29,9 +30,17 @@ def main() -> None:
     tfidf_parser.add_argument("doc_id", type=str, help="doc_id of the movie to search")
     tfidf_parser.add_argument("term", type=str, help="the therm to get the tf-idf of")
 
+    bm25_idf_parser = subparsers.add_parser(
+      'bm25idf', help="Get BM25 IDF score for a given term"
+)
+    bm25_idf_parser.add_argument("term", type=str, help="Term to get BM25 IDF score for")
+
     args = parser.parse_args()
     
     match args.command:
+        case "bm25idf":
+            bm25idf = get_bm25_idf(args.term)
+            print(f"BM25 IDF score of '{args.term}': {bm25idf:.2f}")
         case "tfidf":
             tfidf = get_tfidf_command(int(args.doc_id), args.term)
             print(f"TF-IDF score of '{args.term}' in document '{args.doc_id}': {tfidf:.2f}")

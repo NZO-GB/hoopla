@@ -11,7 +11,6 @@ STOPWORDS_PATH = os.path.join(PROJECT_ROOT, "data", "stopwords.txt")
 
 PUNCTUATION_TRANSTABLE = str.maketrans({key: "" for key in string.punctuation})
 
-
 STEMMER = PorterStemmer()
 
 def load_stopwords() -> list[str]:

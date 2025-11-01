@@ -1,5 +1,5 @@
 from inverted_index import INVERTED_INDEX
-from lib.search_utils import str_process
+from lib.search_utils import tokenize_text
 import math
 
 def get_idf_command(term:str) -> float:
@@ -8,7 +8,7 @@ def get_idf_command(term:str) -> float:
 
     num_movies = len(INVERTED_INDEX.docmap)
 
-    term = str_process(term)[0]
+    term = tokenize_text(term)[0]
     index_movies = INVERTED_INDEX.index.get(term)
     
     if index_movies:

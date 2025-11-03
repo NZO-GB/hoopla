@@ -12,6 +12,7 @@ class InvertedIndex:
         self.term_frequencies: dict[str, Counter] = {}
         self.doc_lengths: dict[int, int] = {}
         self.avg_doc_length = 0
+        self.unloaded = True
 
     def __add_document(self, doc_id: int, text: str):
         text = tokenize_text(text)
@@ -88,7 +89,9 @@ class InvertedIndex:
         except:
             print("Unable to find doc lengths")
 
-        if self.avg_doc_length == 0:
+        if self.unloaded:
             self.avg_doc_length = self.__get_avg_doc_length()
+
+        self.unloaded = False
 
 INVERTED_INDEX = InvertedIndex()

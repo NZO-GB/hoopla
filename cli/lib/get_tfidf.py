@@ -4,7 +4,8 @@ from lib.get_idf import get_idf_command
 
 def get_tfidf_command(doc_id:int, term:str) -> float:
 
-    INVERTED_INDEX.load()
+    if INVERTED_INDEX.unloaded:
+        INVERTED_INDEX.load()
 
     tf = get_tf_command(doc_id, term)
     idf = get_idf_command(term)

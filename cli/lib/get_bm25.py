@@ -6,7 +6,8 @@ import math
 
 def get_bm25_idf_command(term:str) -> float:
 
-    INVERTED_INDEX.load()
+    if INVERTED_INDEX.unloaded:
+        INVERTED_INDEX.load()
 
     num_movies = len(INVERTED_INDEX.docmap)
     term = tokenize_text(term)
@@ -21,7 +22,8 @@ def get_bm25_idf_command(term:str) -> float:
 
 def get_bm25_tf_command(doc_id: int, term: str, k1: float = BM25_K1, b: float = BM25_B) -> float:
 
-    INVERTED_INDEX.load()
+    if INVERTED_INDEX.unloaded:
+        INVERTED_INDEX.load()
 
     avg_len = INVERTED_INDEX.avg_doc_length
     doc_len = INVERTED_INDEX.doc_lengths.get(doc_id)

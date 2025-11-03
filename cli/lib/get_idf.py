@@ -4,7 +4,8 @@ import math
 
 def get_idf_command(term:str) -> float:
 
-    INVERTED_INDEX.load()
+    if INVERTED_INDEX.unloaded:
+        INVERTED_INDEX.load()
 
     num_movies = len(INVERTED_INDEX.docmap)
 

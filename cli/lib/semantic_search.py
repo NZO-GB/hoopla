@@ -2,6 +2,7 @@ import numpy as np
 import os
 from sentence_transformers import SentenceTransformer
 from lib.search_utils import load_movies, cosine_similarity, EMBEDDINGS_PATH
+import re
 
 class SemanticSearch:
 
@@ -93,18 +94,28 @@ def embed_query_text(query):
     print(f"First 5 dimensions: {embedding[:5]}")
     print(f"Shape: {embedding.shape}")
 
-def chunk_text(text, n, overlap):
-    characters = len(text)
-    text = text.split()
+def chunk(text, max, overlap):
     chunks = []
     start = 0
-    end = n
+    end = max
     while start + overlap < len(text):
         raw_append = (text[start:end]) 
         chunks.append(raw_append)
-        start += n-overlap
-        end += n-overlap
-    print(f"Chunking {characters} characters")
+        start += max-overlap
+        end += max-overlap
     for i, chunk in enumerate(chunks, 1):
         chunk_text = ' '.join(chunk)
         print(f"{i}. {chunk_text}")
+
+def chunk_text(text, n, overlap):
+    characters = len(text)
+    print(f"Chunking {characters} characters")
+    text = text.split()
+    chunk(text, n, overlap)
+    
+def semantic_chunk_text(text, max, overlap):
+    characters = len(text)
+    text = re.split(r"(?<=[.!?])\s+", text)
+    print(f"Semantically chunking {characters} characters")
+    chunk(text, max, overlap)
+

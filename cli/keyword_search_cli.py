@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 from inverted_index import INVERTED_INDEX
 import argparse
 

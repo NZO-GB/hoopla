@@ -12,6 +12,8 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 DATA_PATH = os.path.join(PROJECT_ROOT, "data", "movies.json")
 STOPWORDS_PATH = os.path.join(PROJECT_ROOT, "data", "stopwords.txt")
 EMBEDDINGS_PATH = os.path.join(PROJECT_ROOT, "cache", "movie_embeddings.npy")
+CHUNK_EMBEDDINGS_PATH = os.path.join(PROJECT_ROOT, "cache", "chunk_embeddings.npy")
+JSON_METADATA_PATH = os.path.join(PROJECT_ROOT, "cache", "chunk_metadata.json")
 
 def load_stopwords() -> list[str]:
     with open(STOPWORDS_PATH, "r") as f:

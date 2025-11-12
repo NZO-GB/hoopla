@@ -2,10 +2,12 @@ import numpy as np
 import os
 from sentence_transformers import SentenceTransformer
 from lib.search_utils import (
-    load_movies, cosine_similarity, EMBEDDINGS_PATH, CHUNK_EMBEDDINGS_PATH, JSON_METADATA_PATH
+    load_movies, cosine_similarity, EMBEDDINGS_PATH, CHUNK_EMBEDDINGS_PATH, JSON_METADATA_PATH,
 ) 
 import re
 import json
+
+SCORE_PRECISION = 3
 
 class SemanticSearch:
 
@@ -75,7 +77,7 @@ class ChunkedSemanticSearch(SemanticSearch):
     def __init__(self) -> None:
         super().__init__()
         self.chunk_embeddings = None
-        self.chunk_metadata = None
+        self.chunk_metadata: list[dict] = None
 
     def build_chunk_embeddings(self, documents: list[dict]) -> list[list[int]]:
         self._populate_docs_and_docmap(documents)
@@ -109,6 +111,85 @@ class ChunkedSemanticSearch(SemanticSearch):
                 self.chunk_metadata = json.load(f)
             return self.chunk_embeddings
         return self.build_chunk_embeddings(documents)
+    
+    def search_chunks(self, query: str, limit: int = 10):
+        query_embed = self.generate_embedding(query)
+
+        # --- START DEBUGGING ---
+        # Make sure they are numpy arrays for testing
+        test_query_vec = np.array(query_embed)
+        test_chunk_vec = np.array(self.chunk_embeddings[0])
+
+        print("--- DEBUGGING INFO ---")
+        print(f"Query Vector Shape: {test_query_vec.shape}")
+        print(f"Chunk Vector Shape: {test_chunk_vec.shape}")
+
+        # The 'norm' is the vector's "length" or "magnitude"
+        print(f"Query Vector Norm: {np.linalg.norm(test_query_vec)}")
+        print(f"Chunk Vector Norm: {np.linalg.norm(test_chunk_vec)}")
+        
+        # Test the similarity function you are using
+        test_score = cosine_similarity(self.chunk_embeddings[0], query_embed)
+        print(f"Test Score (with your function): {test_score}")
+        print("----------------------")
+        # --- END DEBUGGING ---
+
+        chunk_scores: list[dict] = []
+        for i, chunk_embed in enumerate(self.chunk_embeddings):
+            score = cosine_similarity(chunk_embed, query_embed)
+            chunk_metadata = self.chunk_metadata["chunks"][i]
+            chunk_movie_idx = chunk_metadata["movie_idx"]
+            chunk_dict = {
+                "chunk_idx": i,
+                "movie_idx": chunk_movie_idx,
+                "score": score
+            }
+            chunk_scores.append(chunk_dict)
+
+        # print("Test 1:")
+        # print(f"{len(self.chunk_embeddings) = }")
+        # print(f"{len(self.chunk_metadata["chunks"]) = }" )
+        # print("Test 2")
+        # for i in range(5):
+        #     print(i, self.chunk_metadata["chunks"][i]["movie_idx"])
+        # print("Test 3:")
+        # print(f"{query_embed = }")
+        # print(f"{self.chunk_embeddings[0] = } ")
+        # print("Test 4:")
+        # print(self.documents[:10])
+
+        movie_idx_to_score = {}
+        movie_idx_to_best_chunk = {}
+
+        for chunk_score in chunk_scores:
+            current_idx = chunk_score.get("movie_idx")
+            new_score = chunk_score.get("score")
+            old_score = movie_idx_to_score.get(current_idx)
+            chunk_idx = chunk_score.get("chunk_idx")
+            if old_score is None or new_score > old_score:
+                movie_idx_to_score[current_idx] = new_score
+                movie_idx_to_best_chunk[current_idx] = chunk_idx
+
+        sorted_list = sorted(movie_idx_to_score.items(), key=lambda x: x[1], reverse=True)[:limit]
+        final_list = []
+
+        for movie in sorted_list:
+            id = movie[0]
+            chunk_idx = movie_idx_to_best_chunk[id]
+            movie_doc = self.document_map[id]
+            title = movie_doc["title"]
+            description = movie_doc["description"]
+            metadata = self.chunk_metadata["chunks"][chunk_idx]
+            entry = {
+                "id": id,
+                "title": title,
+                "document": description[:100],
+                "score": round(movie[1], SCORE_PRECISION),
+                "metadata": metadata or {}
+            }
+            final_list.append(entry)
+
+        return final_list
 
 def verify_embeddings():
     instance = SemanticSearch()

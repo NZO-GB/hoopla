@@ -51,7 +51,7 @@ def main():
             instance.load_or_create_chunk_embeddings(MOVIES)
             results = instance.search_chunks(args.query, args.limit)
             for result in results:
-                print(f"\n{result["id"]}. {result["title"]} (score: {result["score"]:.2f})")
+                print(f"\n{result["id"]}. {result["title"]} (score: {result["score"]:.4f})")
                 print(f"   {result["document"]}...")
         case "embed_chunks":
             instance = ChunkedSemanticSearch()
